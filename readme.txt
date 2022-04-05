@@ -3,7 +3,8 @@
 This project is based on STM32Cube's "CAN_Networking" example
   
 This example shows how to configure the CAN peripheral to send and receive 
-CAN frames in normal mode. 
+J1939 frames.  By default, the example only sends messages 
+if prompted by activity on the bus (i.e. it is more of a listener).
 
 The CAN is configured as follows:
     - Bit Rate   = 1 Mbit/s  
@@ -11,7 +12,6 @@ The CAN is configured as follows:
     - ID Filter  = All identifiers are allowed
     - RTR = Data
     - DLC = 1 byte
-    - Data: Led number that should be turned ON
 
 # Notes 
 
