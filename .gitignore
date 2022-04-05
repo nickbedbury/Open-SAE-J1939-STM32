@@ -1,0 +1,6 @@
+# STM32Cube copied library and project folders
+Drivers/*
+SW4STM32/STM32F769I_EVAL/Debug
+.settings
+.launch
+*.o
