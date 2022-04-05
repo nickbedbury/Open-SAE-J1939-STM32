@@ -28,9 +28,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Doc/readme.txt</name>
+			<name>Doc/readme.md</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/readme.md</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f7xx.c</name>
