@@ -28,6 +28,8 @@ Please refer to the AN4839 “Level 1 cache on STM32F7 Series”
 
 # Directory contents 
 
+| File | Description |
+| ------------------------------- | -------------- |
 | Inc/stm32f7xx_hal_conf.h        | HAL configuration file |
 | Inc/stm32f7xx_it.h              | DMA interrupt handlers header file |
 | Inc/main.h                      | Header for main.c module |
