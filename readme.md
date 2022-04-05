@@ -38,9 +38,13 @@ Please refer to the AN4839 “Level 1 cache on STM32F7 Series”
   
 # Hardware and Software environment
 
- - This example runs on STM32F767xx/STM32F769xx/STM32F777xx/STM32F779xx devices.
+ - This example runs on STM32F767xx/STM32F769xx/STM32F777xx/STM32F779xx devices,
+   essentially those with a built-in CAN peripheral.
+ - The example may require an external CAN transceiver if the eval board does 
+   not have one.  This is an overview of how to construct the necessary circuit:
+   https://www.instructables.com/STM32-CAN-Interface/
  - This example has NOT been tested with STM32F769I-EVAL board, but should be
-   easily tailored to any other supported device and development board.
+   easily tailored to any supported device and development board.
 
 ## STM32F769I-EVAL Set-up 
  - Use LED1, LED2, LED3 and LED4 connected respectively to PI.15, PJ.00, PJ.01
