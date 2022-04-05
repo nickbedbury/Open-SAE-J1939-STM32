@@ -28,23 +28,23 @@ Please refer to the AN4839 “Level 1 cache on STM32F7 Series”
 
 # Directory contents 
 
-| Inc/stm32f7xx_hal_conf.h        | HAL configuration file
-| Inc/stm32f7xx_it.h              | DMA interrupt handlers header file
-| Inc/main.h                      | Header for main.c module
-| Inc/Hardware.h                  | Open-J1939 Hardware.h implementation
-| Inc/Open_SAE_J1939.h            | Open-J1939 main header
-| Inc/Struct.h                    | Definitions of various data types for Open-J1939
-| Src/stm32f7xx_it.c              | DMA interrupt handlers
-| Src/main.c                      | Main program
-| Src/stm32f7xx_hal_msp.c         | HAL MSP file
-| Src/system_stm32f7xx.c          | STM32F7xx system source file
-| Src/CAN_Transmit_Receive.c      | Open-J1939 CAN function wrappers
-| Src/FLASH_EEPROM_RAM_Memory.c   | Open-J1939 memory management
-| Src/Listen_For_Messages.c       | Open-J1939 listener
-| Src/Save_Load_Struct.c          | Open-J1939 custom settings implementation
-| Src/Startup_ECU.c               | Open-J1939 startup functions
-| ISO_11783                       | Copy of Open-J1939
-| SAE_J1939                       | Copy of Open-J1939
+| Inc/stm32f7xx_hal_conf.h        | HAL configuration file |
+| Inc/stm32f7xx_it.h              | DMA interrupt handlers header file |
+| Inc/main.h                      | Header for main.c module |
+| Inc/Hardware.h                  | Open-J1939 Hardware.h implementation |
+| Inc/Open_SAE_J1939.h            | Open-J1939 main header |
+| Inc/Struct.h                    | Definitions of various data types for Open-J1939 |
+| Src/stm32f7xx_it.c              | DMA interrupt handlers | 
+| Src/main.c                      | Main program | 
+| Src/stm32f7xx_hal_msp.c         | HAL MSP file | 
+| Src/system_stm32f7xx.c          | STM32F7xx system source file |
+| Src/CAN_Transmit_Receive.c      | Open-J1939 CAN function wrappers |
+| Src/FLASH_EEPROM_RAM_Memory.c   | Open-J1939 memory management |
+| Src/Listen_For_Messages.c       | Open-J1939 listener |
+| Src/Save_Load_Struct.c          | Open-J1939 custom settings implementation |
+| Src/Startup_ECU.c               | Open-J1939 startup functions |
+| ISO_11783                       | Copy of Open-J1939 |
+| SAE_J1939                       | Copy of Open-J1939 |
   
 # Hardware and Software environment
 
