@@ -45,6 +45,7 @@ CAN_RxHeaderTypeDef   RxHeader;
 uint8_t               TxData[8];
 uint8_t               RxData[8];
 uint32_t              TxMailbox;
+J1939 j1939         = {0};
 
 /* Private function prototypes -----------------------------------------------*/
 static void MPU_Config(void);
@@ -98,16 +99,13 @@ int main(void)
 
   /* Infinite loop */
 
-  J1939 j1939 = {0};
-
   /* Load your ECU information */
   Open_SAE_J1939_Startup_ECU(&CanHandle, &TxMailbox, &j1939);
 
   while(1) {
-	/* Read incoming messages */
-	Open_SAE_J1939_Listen_For_Messages(&CanHandle, &TxMailbox, &j1939);
-	/* Your application code here */
 
+	/* Your application code here */
+	HAL_Delay(10);
   }      
 }
 
@@ -289,19 +287,18 @@ static void CAN_Config(void)
   */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-  /* Get RX message */
-  if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
+
+  /* Read incoming message */
+  if (Open_SAE_J1939_Listen_For_Messages(hcan, &TxMailbox, &j1939))
   {
-    /* Reception Error */
-    Error_Handler();
+	  // Got a new message
+	  LED_Display(1);
+  }
+  else
+  {
+	  LED_Display(0);
   }
 
-  /* Display LEDx */
-  if ((RxHeader.StdId == 0x321) && (RxHeader.IDE == CAN_ID_STD) && (RxHeader.DLC == 2))
-  {
-    LED_Display(RxData[0]);
-    ubKeyNumber = RxData[0];
-  }
 }
 
 /**
