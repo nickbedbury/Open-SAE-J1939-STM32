@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    CAN/CAN_Networking/Src/main.c
+  * @file    Src/main.c
   * @author  MCD Application Team
   * @brief   This example shows how to configure the CAN peripheral
   *          to send and receive CAN frames in normal mode. The sent frames
@@ -22,14 +22,6 @@
 #include "main.h"
 #include "Structs.h"
 #include "Open_SAE_J1939.h"
-
-/** @addtogroup STM32F7xx_HAL_Examples
-  * @{
-  */
-
-/** @addtogroup CAN_Networking
-  * @{
-  */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    CAN/CAN_Networking/Inc/stm32f7xx_it.h
+  * @file    Inc/stm32f7xx_it.h
   * @author  MCD Application Team
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************

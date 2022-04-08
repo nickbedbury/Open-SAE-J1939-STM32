@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    CAN/CAN_Networking/Inc/main.h
+  * @file    Inc/main.h
   * @author  MCD Application Team
   * @brief   Header for main.c module
   ******************************************************************************
