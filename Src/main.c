@@ -78,6 +78,12 @@ int main(void)
   SystemClock_Config();
 
   /* Configure LED1, LED2, LED3 and LED4 */
+#ifdef STM32F723xx
+  BSP_LED_Init(LED5);
+  BSP_LED_Init(LED6);
+
+  BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_GPIO);
+#else
   BSP_LED_Init(LED1);
   BSP_LED_Init(LED2);
   BSP_LED_Init(LED3);
@@ -85,6 +91,7 @@ int main(void)
 
   /* Configure Tamper push-button */
   BSP_PB_Init(BUTTON_TAMPER, BUTTON_MODE_GPIO);
+#endif
 
   /* Configure the CAN peripheral */
   CAN_Config();
@@ -145,7 +152,9 @@ static void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLN = 432;  
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 9;
+#ifndef STM32F723xx
   RCC_OscInitStruct.PLL.PLLR = 7;
+#endif
   
   ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
   if(ret != HAL_OK)
@@ -300,7 +309,29 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
   */
 void LED_Display(uint8_t LedStatus)
 {
+
+#ifdef STM32F723xx
   /* Turn OFF all LEDs */
+  BSP_LED_Off(LED5);
+  BSP_LED_Off(LED6);
+
+  switch(LedStatus)
+  {
+    case (5):
+      /* Turn ON LED5 */
+      BSP_LED_On(LED5);
+      break;
+
+    case (6):
+      /* Turn ON LED6 */
+      BSP_LED_On(LED6);
+      break;
+    default:
+      break;
+  }
+
+#else
+
   BSP_LED_Off(LED1);
   BSP_LED_Off(LED2);
   BSP_LED_Off(LED3);
@@ -330,6 +361,7 @@ void LED_Display(uint8_t LedStatus)
     default:
       break;
   }
+#endif
 }
 
 
