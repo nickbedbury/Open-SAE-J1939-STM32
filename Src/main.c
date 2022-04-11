@@ -38,6 +38,7 @@ uint8_t               TxData[8];
 uint8_t               RxData[8];
 uint32_t              TxMailbox;
 J1939 j1939         = {0};
+uint8_t               CurrentLed = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static void MPU_Config(void);
@@ -293,7 +294,17 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
   if (Open_SAE_J1939_Listen_For_Messages(hcan, &TxMailbox, &j1939))
   {
 	  // Got a new message
+	  CurrentLed = (CurrentLed + 1) % 2;
+#ifdef STM32F723xx
+	  if (CurrentLed == 0){
+		  LED_Display(5);
+	  }
+	  else {
+		  LED_Display(6);
+	  }
+#else
 	  LED_Display(1);
+#endif
   }
   else
   {

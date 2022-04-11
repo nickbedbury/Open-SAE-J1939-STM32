@@ -46,6 +46,7 @@ bool Load_Struct(uint8_t data[], uint32_t data_length, char file_name[]){
 	STM32_PLC_SD_Close_File();
 	STM32_PLC_SD_Unmount_Card();
 */
+
 #elif PROCESSOR_CHOICE == ARDUINO
 	/* Implement your memory handler function for the Arduino platform */
 #elif PROCESSOR_CHOICE == PIC

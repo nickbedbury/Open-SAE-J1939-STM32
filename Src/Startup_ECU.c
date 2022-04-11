@@ -13,11 +13,17 @@
 /* Load our ECU parameters into J1939 structure. Very useful if you want your ECU remember its NAME + address + identifications at startup. */
 bool Open_SAE_J1939_Startup_ECU(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939* j1939) {
 	uint32_t ECU_information_length = sizeof(Information_this_ECU);
-	uint8_t ECU_information_data[ECU_information_length];
-	memset(ECU_information_data, 0, ECU_information_length);
-	if(!Load_Struct(ECU_information_data, ECU_information_length, (char*)INFORMATION_THIS_ECU))
-		return false; /* Problems occurs */
-	memcpy(&j1939->information_this_ECU, (Information_this_ECU*)ECU_information_data, ECU_information_length);
+	Information_this_ECU ECU_information_data = {0};
+	/*memset(ECU_information_data, 0, ECU_information_length);
+
+	 if(!Load_Struct(ECU_information_data, ECU_information_length, (char*)INFORMATION_THIS_ECU))
+		return false; // Problems occurs
+	*/
+
+	// Hard-coding some details
+	ECU_information_data.this_name.arbitrary_address_capable = 1;
+	ECU_information_data.this_name.vehicle_system_instance = 3;
+	memcpy(&j1939->information_this_ECU, &ECU_information_data, ECU_information_length);
 
 	/* If we are going to send and receive the ECU identification and component identification, we need to specify the size of them */
 	j1939->information_this_ECU.this_identifications.ecu_identification.length_of_each_field = 30;

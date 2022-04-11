@@ -144,6 +144,14 @@ bool CAN_Read_Message(CAN_HandleTypeDef *CanHandle, uint32_t *ID, uint8_t data[]
 	if (HAL_CAN_GetRxMessage(CanHandle, CAN_RX_FIFO0, &RxHeader, data) == HAL_OK)
 	{
 		is_new_message = true;
+		if (RxHeader.IDE != 0)
+		{
+			*ID = RxHeader.ExtId;
+		}
+		else
+		{
+			*ID = RxHeader.StdId;
+		}
 	}
 
 	#elif PROCESSOR_CHOICE == ARDUINO
