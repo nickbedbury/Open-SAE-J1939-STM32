@@ -12,11 +12,14 @@
 #include "../SAE_J1939-73_Diagnostics_Layer/Diagnostics_Layer.h"
 #include "../SAE_J1939-71_Application_Layer/Application_Layer.h"
 
+extern volatile uint16_t bytes_sent;
+extern volatile uint8_t current_package;
+
 /*
  * Store the sequence data packages from other ECU
  * PGN: 0x00EB00 (60160)
  */
-void SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t SA, uint8_t data[]) {
+bool SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t SA, uint8_t data[]) {
 	/* Save the sequence data */
 	j1939->from_other_ecu_tp_dt.sequence_number = data[0];
 	j1939->from_other_ecu_tp_dt.from_ecu_address = SA;
@@ -26,7 +29,7 @@ void SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandl
 
 	/* Check if we have completed our message - Return = Not completed */
 	if (j1939->from_other_ecu_tp_cm.number_of_packages != j1939->from_other_ecu_tp_dt.sequence_number || j1939->from_other_ecu_tp_cm.number_of_packages == 0)
-		return;
+		return false;
 
 	/* Our message are complete - Build it and call it complete_data[total_message_size] */
 	uint32_t PGN = j1939->from_other_ecu_tp_cm.PGN_of_the_packeted_message;
@@ -71,6 +74,7 @@ void SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandl
 	/* Delete TP DT and TP CM */
 	memset(&j1939->from_other_ecu_tp_dt, 0, sizeof(j1939->from_other_ecu_tp_dt));
 	memset(&j1939->from_other_ecu_tp_cm, 0, sizeof(j1939->from_other_ecu_tp_cm));
+	return true;
 }
 
 /*
@@ -80,19 +84,44 @@ void SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandl
 ENUM_J1939_STATUS_CODES SAE_J1939_Send_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t DA){
 	uint32_t ID = (0x1CEB << 16) | (DA << 8) | j1939->information_this_ECU.this_ECU_address;
 	uint8_t package[8];
-	uint16_t bytes_sent = 0;
 	ENUM_J1939_STATUS_CODES status = STATUS_SEND_OK;
-	for(uint8_t i = 1; i <= j1939->this_ecu_tp_cm.number_of_packages; i++) {
-		package[0] = i; 																	/* Number of package */
+	uint16_t current_bytes_sent = bytes_sent;
+	while (current_package <= j1939->this_ecu_tp_cm.number_of_packages) {
+		package[0] = current_package; 														/* Number of package */
 		for(uint8_t j = 0; j < 7; j++)
-			if(bytes_sent < j1939->this_ecu_tp_cm.total_message_size)
-				package[j+1] = j1939->this_ecu_tp_dt.data[bytes_sent++];					/* Data that we have collected */
-			 else
-				package[j+1] = 0xFF; 														/* Reserved */
+		{
+			if(current_bytes_sent < j1939->this_ecu_tp_cm.total_message_size) {
+				package[j+1] = j1939->this_ecu_tp_dt.data[current_bytes_sent++];					/* Data that we have collected */
+			}
+			else {
+				package[j+1] = 0xFF;
+			}
+		}
 
 		status = CAN_Send_Message(CanHandle, TxMailbox, ID, package);
 		if(status != STATUS_SEND_OK)
+		{
 			return status;
+		}
+		else
+		{
+			bytes_sent = current_bytes_sent;
+			if (bytes_sent >= j1939->this_ecu_tp_cm.total_message_size)
+			{
+				bytes_sent = 0;
+				current_package = 1;
+				break;
+			}
+			else
+			{
+				current_package++;
+			}
+		}
+
+		// Hack to make BAM work
+		if (DA == 0xFF){
+			break;
+		}
 	}
 	return status;
 }

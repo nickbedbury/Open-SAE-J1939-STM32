@@ -27,6 +27,7 @@
 /* Private define ------------------------------------------------------------*/
 #define KEY_PRESSED     0x01
 #define KEY_NOT_PRESSED 0x00
+#define BROADCAST		1
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -39,6 +40,13 @@ uint8_t               RxData[8];
 uint32_t              TxMailbox;
 J1939 j1939         = {0};
 uint8_t               CurrentLed = 0;
+volatile uint16_t 	  bytes_sent = 0;
+volatile uint8_t      current_package = 1;
+#ifdef BROADCAST
+uint8_t DA = 0xFF;
+#else
+uint8_t DA = 128;
+#endif
 
 /* Private function prototypes -----------------------------------------------*/
 static void MPU_Config(void);
@@ -57,6 +65,22 @@ static void LED_Display(uint8_t LedStatus);
   */
 int main(void)
 {
+#ifdef BROADCAST
+	j1939.this_ecu_tp_cm.control_byte = CONTROL_BYTE_TP_CM_BAM;
+	  j1939.this_ecu_tp_cm.PGN_of_the_packeted_message = 0xF0FF;
+#else
+  j1939.this_ecu_tp_cm.control_byte = CONTROL_BYTE_TP_CM_RTS;
+  j1939.this_ecu_tp_cm.PGN_of_the_packeted_message = 0xD080;
+#endif
+  j1939.this_ecu_tp_cm.total_message_size = 50;
+  j1939.this_ecu_tp_cm.number_of_packages = 8;
+  j1939.this_ecu_tp_cm.from_ecu_address = 0;
+  for (uint8_t i = 0; i < j1939.this_ecu_tp_cm.total_message_size; i++){
+    j1939.this_ecu_tp_dt.data[i] = i;
+  }
+  j1939.this_ecu_tp_dt.sequence_number = 0;
+  j1939.this_ecu_tp_dt.from_ecu_address = 0;
+
   /* Configure the MPU attributes */
   MPU_Config();
 
@@ -105,14 +129,36 @@ int main(void)
   while(1) {
 
 	/* Your application code here */
-	HAL_Delay(10);
+	HAL_Delay(5000);
+
+	SAE_J1939_Send_Transport_Protocol_Connection_Management(&CanHandle, &TxMailbox, &j1939, DA);
+#ifdef BROADCAST
+	bytes_sent = 0;
+	current_package = 1;
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	HAL_Delay(50);
+    SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+#endif
   }      
 }
 
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow : 
-  *            System Clock source            = PLL (HSE)
+  *            System Clock sstartource            = PLL (HSE)
   *            SYSCLK(Hz)                     = 216000000
   *            HCLK(Hz)                       = 216000000
   *            AHB Prescaler                  = 1
@@ -230,9 +276,9 @@ static void CAN_Config(void)
   CanHandle.Init.TransmitFifoPriority = DISABLE;
   CanHandle.Init.Mode = CAN_MODE_NORMAL;
   CanHandle.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  CanHandle.Init.TimeSeg1 = CAN_BS1_6TQ;
-  CanHandle.Init.TimeSeg2 = CAN_BS2_2TQ;
-  CanHandle.Init.Prescaler = 6;
+  CanHandle.Init.TimeSeg1 = CAN_BS1_10TQ; // Orig=6TQ, New=8TQ
+  CanHandle.Init.TimeSeg2 = CAN_BS2_7TQ; // Orig=2TQ, New=7TQ
+  CanHandle.Init.Prescaler = 12; // Orig=6, New=4
 
   if (HAL_CAN_Init(&CanHandle) != HAL_OK)
   {
@@ -266,7 +312,7 @@ static void CAN_Config(void)
   }
 
   /*##-4- Activate CAN RX notification #######################################*/
-  if (HAL_CAN_ActivateNotification(&CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+  if (HAL_CAN_ActivateNotification(&CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_TX_MAILBOX_EMPTY) != HAL_OK)
   {
     /* Notification Error */
     Error_Handler();
@@ -279,6 +325,33 @@ static void CAN_Config(void)
   TxHeader.IDE = CAN_ID_STD;
   TxHeader.DLC = 2;
   TxHeader.TransmitGlobalTime = DISABLE;
+}
+
+/**
+ *
+ */
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+	if (bytes_sent < j1939.this_ecu_tp_cm.total_message_size)
+	{
+		SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	}
+}
+
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+	if (bytes_sent < j1939.this_ecu_tp_cm.total_message_size)
+	{
+		SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	}
+}
+
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+	if (bytes_sent < j1939.this_ecu_tp_cm.total_message_size)
+	{
+		SAE_J1939_Send_Transport_Protocol_Data_Transfer(&CanHandle, &TxMailbox, &j1939, DA);
+	}
 }
 
 /**

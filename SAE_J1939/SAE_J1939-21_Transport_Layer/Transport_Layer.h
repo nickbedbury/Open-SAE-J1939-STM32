@@ -40,7 +40,7 @@ void SAE_J1939_Read_Transport_Protocol_Connection_Management(CAN_HandleTypeDef *
 ENUM_J1939_STATUS_CODES SAE_J1939_Send_Transport_Protocol_Connection_Management(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t DA);
 
 /* Transport Protocol Data Transfer */
-void SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t SA, uint8_t data[]);
+bool SAE_J1939_Read_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t SA, uint8_t data[]);
 ENUM_J1939_STATUS_CODES SAE_J1939_Send_Transport_Protocol_Data_Transfer(CAN_HandleTypeDef *CanHandle, uint32_t *TxMailbox, J1939 *j1939, uint8_t DA);
 
 #ifdef __cplusplus

@@ -41,10 +41,10 @@ bool Open_SAE_J1939_Listen_For_Messages(CAN_HandleTypeDef *CanHandle, uint32_t *
 
 
 		/* Read Transport Protocol information from other ECU */
-		else if(id0 == 0x1C && id1 == 0xEC && DA == j1939->information_this_ECU.this_ECU_address)
+		else if((id0 == 0x1C || id0 == 0x18) && id1 == 0xEC && (DA == 0xFF || DA == j1939->information_this_ECU.this_ECU_address))
 			SAE_J1939_Read_Transport_Protocol_Connection_Management(CanHandle, TxMailbox, j1939, SA, data);
-		else if (id0 == 0x1C && id1 == 0xEB && DA == j1939->information_this_ECU.this_ECU_address)
-			SAE_J1939_Read_Transport_Protocol_Data_Transfer(CanHandle, TxMailbox, j1939, SA, data);
+		else if (id0 == 0x1C && id1 == 0xEB && (DA == 0xFF || DA == j1939->information_this_ECU.this_ECU_address))
+			is_new_message = SAE_J1939_Read_Transport_Protocol_Data_Transfer(CanHandle, TxMailbox, j1939, SA, data);
 
 		/* Read response request from other ECU - This are response request. They are responses from other ECU about request from this ECU */
 		else if (id0 == 0x18 && id1 == 0xEE && DA == 0xFF && SA != 0xFE)
